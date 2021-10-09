@@ -1,0 +1,33 @@
+version: '3.0'
+services:
+  db:
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    ports:
+      - "5432:5432"
+    restart: always
+    environment:
+      POSTGRES_USER: user1
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: app
+    container_name: db
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app-network
+  web:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    ports:
+      - "8001:80"
+    depends_on:
+      - db
+    volumes:
+      - ./app/src:/code/app
+    networks:
+      - app-network
+networks:
+  app-network:
+   name: app-network
